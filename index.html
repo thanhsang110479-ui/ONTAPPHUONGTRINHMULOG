@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ÔN TẬP PHƯƠNG TRÌNH MẶT CẦU - TẠO BỞI MR SANG</title>
+<style>
+:root {
+  --bg1:#1f3243; --bg2:#22435c;
+  --line:rgba(255,255,255,.14);
+  --text:#eaf4ff; --muted:rgba(234,244,255,.78);
+  --green:#19c37d; --orange:#ff8a00; --orange2:#ffb14a; --bad:#ff4d4f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(900px 500px at 15% 0%, rgba(25,195,125,.35), transparent 55%),
+    radial-gradient(900px 520px at 85% 10%, rgba(255,138,0,.35), transparent 55%),
+    linear-gradient(180deg,var(--bg2),var(--bg1));
+  min-height:100vh;
+}
+.wrap{max-width:980px;margin:0 auto;padding:18px 14px 28px}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;border:1px solid var(--line);border-radius:18px;
+  background:linear-gradient(135deg, rgba(0,120,255,.95), rgba(0,180,255,.95));
+  box-shadow:0 14px 40px rgba(0,0,0,.25);
+}
+.topbar .title h1,.topbar .sub,.topbar .pill{color:#fff !important}
+.topbar .pill{border-color: rgba(255,255,255,.35)!important;background:rgba(255,255,255,.18)!important}
+.title{display:flex;flex-direction:column;gap:4px}
+.title h1{margin:0;font-size:18px;letter-spacing:.2px}
+.title .sub{font-size:12px;color:var(--muted)}
+.pill{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:rgba(0,0,0,.15);white-space:nowrap}
+.grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+.card{
+  border:1px solid var(--line);border-radius:18px;padding:16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  box-shadow:0 14px 40px rgba(0,0,0,.25);
+}
+.btn{
+  border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:10px 12px;
+  background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
+  color:var(--text);cursor:pointer;transition:.12s transform,.12s filter;user-select:none;
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none;filter:none}
+.btn.primary{border-color: rgba(25,195,125,.55);box-shadow:0 0 0 2px rgba(25,195,125,.12) inset}
+.btn.orange{border-color: rgba(255,138,0,.65);box-shadow:0 0 0 2px rgba(255,138,0,.12) inset}
+.btn.ghost{background:rgba(0,0,0,.10)}
+.btn.exit{background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.06)), #ff3b30;border-color: rgba(255,59,48,.95);box-shadow:0 0 0 2px rgba(255,59,48,.18) inset;color:#fff;font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted);font-size:13px;line-height:1.5}
+.sep{height:1px;background:rgba(255,255,255,.12);margin:12px 0}
+.stats{display:grid;grid-template-columns:1fr;gap:10px}
+.stat{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px;background:rgba(0,0,0,.14)}
+.stat .k{font-size:12px;color:var(--muted)}
+.stat .v{font-size:18px;font-weight:800;margin-top:4px}
+.screen{display:none}
+.screen.active{display:block}
+.qhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.qleft{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.qnum{font-weight:800;font-size:22px}
+.timer{font-variant-numeric:tabular-nums;font-size:20px}
+.bar{height:10px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;border:1px solid rgba(255,255,255,.12)}
+.bar>div{height:100%;width:100%;background:linear-gradient(90deg,var(--green),var(--orange))}
+.qtext{margin-top:12px;font-size:22px;line-height:1.6;color:#fff}
+.qtext,.qtext *{color:#fff !important}
+.choice,.choice *{color:#fff !important}
+.choice b{color:var(--orange2)!important}
+.choices{display:grid;gap:10px;margin-top:12px}
+.choice{text-align:left;padding:16px 14px;border-radius:18px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.12);font-size:20px;line-height:1.4}
+.choice:hover{border-color: rgba(255,177,74,.70)}
+.choice.correct{border-color: rgba(25,195,125,.85); box-shadow: 0 0 0 2px rgba(25,195,125,.12) inset}
+.choice.wrong{border-color: rgba(255,77,79,.85); box-shadow: 0 0 0 2px rgba(255,77,79,.12) inset}
+.choice.disabled{pointer-events:none;opacity:.95}
+.toast{margin-top:10px;font-size:14px}
+.toast.good{color:var(--green)}
+.toast.bad{color:var(--bad)}
+.footer{text-align:center;margin-top:14px;color:rgba(234,244,255,.65);font-size:12px}
+.formGrid{display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin:14px 0 6px}
+@media (max-width:700px){ .formGrid{grid-template-columns:1fr} }
+.field label{display:block;font-size:13px;color:var(--muted);margin:0 0 6px;font-weight:600}
+input.text{width:100%;padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.12);color:var(--text);outline:none;font-size:16px}
+input.text:focus{border-color: rgba(255,138,0,.7); box-shadow:0 0 0 2px rgba(255,138,0,.12) inset}
+.warn{margin-top:8px;color:#ffd166;font-size:13px}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="title">
+      <h1>ÔN TẬP PHƯƠNG TRÌNH MẶT CẦU</h1>
+      <div class="sub">TẠO BỞI MR SANG</div>
+    </div>
+    <div class="pill">20 câu / lượt • 60 giây / câu</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="screen active" id="screenStart">
+        <audio id="introAudio" preload="auto" playsinline src="intro_PTMC.mp3"></audio>
+
+        <div class="muted">
+          Nhấn <b>Bắt đầu</b> để chơi. Mỗi lượt gồm <b>20 câu</b> lấy ngẫu nhiên trong kho câu hỏi.
+          Mỗi câu có <b>60 giây</b>.
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="formGrid">
+          <div class="field">
+            <label for="playerName">Họ và tên</label>
+            <input class="text" id="playerName" type="text" placeholder="Nhập họ và tên..." autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="playerClass">Lớp</label>
+            <input class="text" id="playerClass" type="text" placeholder="Ví dụ: 12A1" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="warn" id="playerWarn" style="display:none">Vui lòng nhập đầy đủ <b>Họ và tên</b> và <b>Lớp</b> để bắt đầu.</div>
+
+        <div class="row">
+          <button class="btn primary" id="btnStart">Bắt đầu</button>
+          <button class="btn ghost" id="btnHow">Hướng dẫn</button>
+        </div>
+
+        <div class="toast muted" id="howText" style="display:none"></div>
+      </div>
+
+      <div class="screen" id="screenGame">
+        <div class="qhead">
+          <div class="qleft">
+            <div class="qnum" id="qNum">Câu 1/20</div>
+            <button class="btn exit" id="btnExit" type="button">Thoát</button>
+          </div>
+          <div class="qright">
+            <div class="timer" id="qTimer">01:00</div>
+          </div>
+        </div>
+        <div class="bar"><div id="timeBar"></div></div>
+
+        <div class="qtext" id="qText"></div>
+        <div class="choices" id="choices"></div>
+
+        <div class="toast" id="toast"></div>
+
+        <div class="sep"></div>
+        <div class="row">
+          <button class="btn ghost" id="btnPrev" disabled>← Câu trước</button>
+          <button class="btn orange" id="btnNext" disabled>Câu tiếp →</button>
+          <span class="muted" id="navHint">Chọn đáp án để mở nút “Câu tiếp”.</span>
+        </div>
+      </div>
+
+      <div class="screen" id="screenResult">
+        <div class="qhead">
+          <div class="qnum">Hoàn thành!</div>
+          <div class="pill" id="resultTime">—</div>
+        </div>
+        <div class="sep"></div>
+        <div class="stats">
+          <div class="stat"><div class="k">Tiến độ</div><div class="v" id="rProg">0/20</div></div>
+          <div class="stat"><div class="k">Số câu đúng</div><div class="v" id="rGood">0</div></div>
+          <div class="stat"><div class="k">Số câu sai</div><div class="v" id="rBad">0</div></div>
+          <div class="stat"><div class="k">Điểm (10)</div><div class="v" id="rScore">0</div></div>
+        </div>
+        <div class="sep"></div>
+        <div class="row">
+          <button class="btn primary" id="btnReplay">Chơi lượt mới</button>
+          <button class="btn orange" id="btnExport">Tải Excel kết quả</button>
+          <button class="btn ghost" id="btnReview">Xem lại</button>
+        </div>
+        <div class="toast muted" id="exportNote">Nhấn <b>Tải Excel kết quả</b> để tải file gửi giáo viên.</div>
+      </div>
+
+      <div class="footer">© ÔN TẬP PHƯƠNG TRÌNH MẶT CẦU - TẠO BỞI MR SANG</div>
+    </div>
+
+    <div class="card">
+      <div class="muted"><b>Thống kê lượt chơi</b></div>
+      <div class="sep"></div>
+      <div class="stats">
+        <div class="stat"><div class="k">Tiến độ</div><div class="v" id="sProg">0/20</div></div>
+        <div class="stat"><div class="k">Đúng</div><div class="v" id="sGood">0</div></div>
+        <div class="stat"><div class="k">Sai</div><div class="v" id="sBad">0</div></div>
+      </div>
+      <div class="sep"></div>
+      <div class="muted">
+        <b>Mẹo</b><br/>
+        • Nếu hết thời gian mà chưa chọn, hệ thống ghi nhận là <b>chưa chọn</b> và chuyển câu tiếp theo.<br/>
+        • Có thể quay lại câu trước để xem lại, nhưng không đổi đáp án sau khi đã chốt.
+      </div>
+      <div class="sep"></div>
+      <div class="row">
+        <button class="btn ghost" id="btnStop" disabled>Kết thúc sớm</button>
+        <button class="btn ghost" id="btnMute">Tắt âm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="bank-json" type="application/json">{"title": "ÔN TẬP PHƯƠNG TRÌNH MẶT CẦU", "format": "katex_safe_v1", "questions": [{"id": "G1_Q01", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 2x - 4y + 6z + 10 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(-1;-2;3).}$", "B": "${I(1;-2;3).}$", "C": "${I(1;2;-3).}$", "D": "${I(-1;2;-3).}$"}, "correct": "C"}, {"id": "G1_Q02", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 8x + 12y - 2z + 49 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(4;6;-1).}$", "B": "${I(-4;-6;1).}$", "C": "${I(4;-6;1).}$", "D": "${I(-4;6;1).}$"}, "correct": "C"}, {"id": "G1_Q03", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 + 10x + 2y - 14z + 71 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(5;1;-7).}$", "B": "${I(-5;1;-7).}$", "C": "${I(5;-1;7).}$", "D": "${I(-5;-1;7).}$"}, "correct": "D"}, {"id": "G1_Q04", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 + 4x + 8y - 16z + 80 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(2;4;-8).}$", "B": "${I(-2;4;-8).}$", "C": "${I(-2;-4;8).}$", "D": "${I(2;-4;8).}$"}, "correct": "C"}, {"id": "G1_Q05", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 18x + 4y + 20z + 181 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(-9;2;10).}$", "B": "${I(9;2;-10).}$", "C": "${I(9;-2;-10).}$", "D": "${I(-9;-2;10).}$"}, "correct": "C"}, {"id": "G1_Q06", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 6x - 10y - 12z + 66 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(-3;-5;-6).}$", "B": "${I(3;5;-6).}$", "C": "${I(-3;5;6).}$", "D": "${I(3;5;6).}$"}, "correct": "D"}, {"id": "G1_Q07", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 + 2x + 12y + 4z + 37 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(1;6;2).}$", "B": "${I(-1;-6;2).}$", "C": "${I(-1;6;-2).}$", "D": "${I(-1;-6;-2).}$"}, "correct": "D"}, {"id": "G1_Q08", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 16x + 8y + 10z + 101 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(-8;4;5).}$", "B": "${I(8;-4;5).}$", "C": "${I(8;-4;-5).}$", "D": "${I(-8;-4;-5).}$"}, "correct": "C"}, {"id": "G1_Q09", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 + 12x - 4y + 2z + 37 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(6;-2;1).}$", "B": "${I(-6;-2;-1).}$", "C": "${I(-6;2;-1).}$", "D": "${I(6;2;-1).}$"}, "correct": "C"}, {"id": "G1_Q10", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 10x + 6y - 8z + 46 = 0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I(-5;3;-4).}$", "B": "${I(5;3;4).}$", "C": "${I(5;-3;4).}$", "D": "${I(-5;-3;-4).}$"}, "correct": "C"}, {"id": "G1_Q11", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S):(x-7)^2+(y-4)^2+(z+5)^2=4}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I\\left(7;4;-5\\right)}$.", "B": "${I\\left(-7;-4;5\\right)}$.", "C": "${I\\left(-6;-6;-4\\right)}$.", "D": "${I\\left(6;6;4\\right)}$."}, "correct": "A"}, {"id": "G1_Q12", "group": "1", "question": "Trong không gian ${Oxyz}$, cho ${(S):x^2+y^2+z^2-14x-6y+10z+82=0}$. Mặt cầu ${(S)}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I\\left(-7;-3;5\\right)}$.", "B": "${I\\left(7;3;-5\\right)}$.", "C": "${I\\left(-2;-2;-4\\right)}$.", "D": "${I\\left(2;2;4\\right)}$."}, "correct": "B"}, {"id": "G2_Q13", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 6x - 2y + 4z + 5 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${2}$.", "B": "${0}$.", "C": "${1}$.", "D": "${5}$."}, "correct": "D"}, {"id": "G2_Q14", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 + 2x + 4y - 6z - 2 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${4}$.", "B": "${3}$.", "C": "${5}$.", "D": "${2}$."}, "correct": "A"}, {"id": "G2_Q15", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 4x + 6y + 2z + 10 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${1}$.", "B": "${0}$.", "C": "${2}$.", "D": "${3}$."}, "correct": "B"}, {"id": "G2_Q16", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 + 6x - 7 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${3}$.", "B": "${0}$.", "C": "${1}$.", "D": "${2}$."}, "correct": "C"}, {"id": "G2_Q17", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 8y + 12 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${4}$.", "B": "${5}$.", "C": "${6}$.", "D": "${7}$."}, "correct": "C"}, {"id": "G2_Q18", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 2x - 2y - 2z - 6 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${5}$.", "B": "${6}$.", "C": "${7}$.", "D": "${4}$."}, "correct": "B"}, {"id": "G2_Q19", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 + 4x + 4y + 4z + 3 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${-3}$.", "B": "${-2}$.", "C": "${0}$.", "D": "${-1}$."}, "correct": "A"}, {"id": "G2_Q20", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 8x - 10z + 25 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${11}$.", "B": "${12}$.", "C": "${14}$.", "D": "${13}$."}, "correct": "D"}, {"id": "G2_Q21", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 + 10x + 10y + 10z + 74 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${-15}$.", "B": "${-14}$.", "C": "${-13}$.", "D": "${-16}$."}, "correct": "B"}, {"id": "G2_Q22", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S): x^2 + y^2 + z^2 - 25 = 0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${3}$.", "B": "${4}$.", "C": "${5}$.", "D": "${6}$."}, "correct": "C"}, {"id": "G2_Q23", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S):x^2+y^2+z^2+8x-4y-4z+15=0}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${2}$.", "B": "${0}$.", "C": "${1}$.", "D": "${3}$."}, "correct": "D"}, {"id": "G2_Q24", "group": "2", "question": "Trong không gian ${Oxyz}$, phương trình nào là phương trình mặt cầu?", "choices": {"A": "${x^2+y^2+z^2-10x-16y-2z+86=0}$.", "B": "${x^2+y^2+z^2+4x-10y-16z+94=0}$.", "C": "${x^2+y^2+z^2+10x+6y+34=0}$.", "D": "${x^2+y^2+z^2+2x-16y+67=0}$."}, "correct": "A"}, {"id": "G2_Q25", "group": "2", "question": "Trong không gian ${Oxyz}$, cho phương trình ${x^2+y^2+z^2-2x+8y-14z+m+5=0}$. Tìm ${m}$ để phương trình trên là phương trình mặt cầu", "choices": {"A": "${m{>}71}$.", "B": "${m{<}71}$.", "C": "${m{>}61}$.", "D": "${m{<}61}$."}, "correct": "D"}, {"id": "G2_Q26", "group": "2", "question": "Trong không gian ${Oxyz}$, cho ${(S):(x-1)^2+(y-8)^2+(z+2)^2=1}$. Mặt cầu ${(S)}$ có bán kính ${R}$ và tâm ${I(a;b;c)}$. Khi đó ${a+b+c+R}$ bằng", "choices": {"A": "${11}$.", "B": "${8}$.", "C": "${10}$.", "D": "${7}$."}, "correct": "B"}, {"id": "G3_Q27", "group": "3", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ tâm ${I\\left(8;-3;7\\right)}$, bán kính ${R=5}$ là", "choices": {"A": "${(x-8)^2+(y+3)^2+(z-7)^2=5}$.", "B": "${(x+8)^2+(y-3)^2+(z+7)^2=5}$.", "C": "${(x-8)^2+(y+3)^2+(z-7)^2=25}$.", "D": "${(x+8)^2+(y-3)^2+(z+7)^2=25}$."}, "correct": "C"}, {"id": "G3_Q28", "group": "3", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ tâm ${I\\left(-5;-4;-2\\right)}$, bán kính bằng khoảng cách từ ${I}$ đến ${Oy}$.", "choices": {"A": "${(x-5)^2+(y-4)^2+(z-2)^2=20}$.", "B": "${(x-5)^2+(y-4)^2+(z-2)^2=4}$.", "C": "${(x+5)^2+(y+4)^2+(z+2)^2=29}$.", "D": "${(x+5)^2+(y+4)^2+(z+2)^2=41}$."}, "correct": "C"}, {"id": "G3_Q29", "group": "3", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ tâm ${I\\left(2;-5;-1\\right)}$, bán kính ${R=4}$ là", "choices": {"A": "${x^2+y^2+z^2+4x-10y-2z+26=0}$.", "B": "${x^2+y^2+z^2-4x+10y+2z+14=0}$.", "C": "${x^2+y^2+z^2-4x+10y+2z+26=0}$.", "D": "${x^2+y^2+z^2+4x-10y-2z+14=0}$."}, "correct": "B"}, {"id": "G3_Q30", "group": "3", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ tâm ${I\\left(3;4;3\\right)}$, qua điểm ${A\\left(7;7;5\\right)}$ là", "choices": {"A": "${(x-3)^2+(y-4)^2+(z-3)^2=5}$.", "B": "${(x+3)^2+(y+4)^2+(z+3)^2=5}$.", "C": "${(x+3)^2+(y+4)^2+(z+3)^2=29}$.", "D": "${(x-3)^2+(y-4)^2+(z-3)^2=29}$."}, "correct": "D"}, {"id": "G3_Q31", "group": "3", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ tâm ${I\\left(8;-2;2\\right)}$, qua điểm ${M}$ đối xứng với ${A\\left(7;2;8\\right)}$ qua ${Ox}$ là", "choices": {"A": "${(x-8)^2+(y+2)^2+(z-2)^2=10}$.", "B": "${(x-8)^2+(y+2)^2+(z-2)^2=101}$.", "C": "${(x+8)^2+(y-2)^2+(z+2)^2=101}$.", "D": "${(x+8)^2+(y-2)^2+(z+2)^2=10}$."}, "correct": "B"}, {"id": "G3_Q32", "group": "3", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ tâm ${I\\left(-2;1;4\\right)}$, qua điểm ${M}$ là hình chiếu của ${A\\left(-1;-1;8\\right)}$ lên ${Oy}$.", "choices": {"A": "${(x+2)^2+(y-1)^2+(z-4)^2=4}$.", "B": "${(x-2)^2+(y+1)^2+(z+4)^2=24}$.", "C": "${(x+2)^2+(y-1)^2+(z-4)^2=24}$.", "D": "${(x-2)^2+(y+1)^2+(z+4)^2=4}$."}, "correct": "C"}, {"id": "G3_Q33", "group": "3", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ tâm ${I\\left(-1;3;5\\right)}$, qua điểm ${A\\left(5;-1;-5\\right)}$ là", "choices": {"A": "${x^2+y^2+z^2-2x+6y+10z+187=0}$.", "B": "${x^2+y^2+z^2+2x-6y-10z-117=0}$.", "C": "${x^2+y^2+z^2-2x+6y+10z-117=0}$.", "D": "${x^2+y^2+z^2+2x-6y-10z+187=0}$."}, "correct": "B"}, {"id": "G3_Q34", "group": "3", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ tâm ${I\\left(-3;5;7\\right)}$, qua điểm ${M}$ là hình chiếu của ${A\\left(5;-2;1\\right)}$ lên ${(Oxy)}$.", "choices": {"A": "${x^2+y^2+z^2+6x-10y-14z+245=0}$.", "B": "${x^2+y^2+z^2+6x-10y-14z-79=0}$.", "C": "${x^2+y^2+z^2-6x+10y+14z+245=0}$.", "D": "${x^2+y^2+z^2-6x+10y+14z-79=0}$."}, "correct": "B"}, {"id": "G3_Q35", "group": "3", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ tâm ${I\\left(3;1;1\\right)}$, qua điểm ${M}$ đối xứng với ${A\\left(4;2;0\\right)}$ qua ${(Oxy)}$.", "choices": {"A": "${x^2+y^2+z^2+6x+2y+2z+8=0}$.", "B": "${x^2+y^2+z^2-6x-2y-2z+14=0}$.", "C": "${x^2+y^2+z^2-6x-2y-2z+8=0}$.", "D": "${x^2+y^2+z^2+6x+2y+2z+14=0}$."}, "correct": "C"}, {"id": "G4_Q36", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(2;-4;6), B(4;2;0)}$ là", "choices": {"A": "${(x+3)^2 + (y-1)^2 + (z+3)^2 = 19}$.", "B": "${(x-3)^2 + (y+1)^2 + (z-3)^2 = 10}$.", "C": "${(x-3)^2 + (y+1)^2 + (z-3)^2 = 19}$.", "D": "${(x+3)^2 + (y-1)^2 + (z+3)^2 = 10}$."}, "correct": "C"}, {"id": "G4_Q37", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(1;2;3), B(5;4;7)}$ là", "choices": {"A": "${(x+3)^2 + (y+3)^2 + (z+5)^2 = 9}$.", "B": "${(x-3)^2 + (y-3)^2 + (z-5)^2 = 4}$.", "C": "${(x-3)^2 + (y-3)^2 + (z-5)^2 = 9}$.", "D": "${(x+3)^2 + (y+3)^2 + (z+5)^2 = 4}$."}, "correct": "C"}, {"id": "G4_Q38", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(-1;0;2), B(3;4;-2)}$ là", "choices": {"A": "${(x+1)^2 + (y+2)^2 + z^2 = 12}$.", "B": "${(x-1)^2 + (y-2)^2 + z^2 = 6}$.", "C": "${(x-1)^2 + (y-2)^2 + z^2 = 12}$.", "D": "${(x+1)^2 + (y+2)^2 + z^2 = 6}$."}, "correct": "C"}, {"id": "G4_Q39", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(0;0;0), B(2;-6;4)}$ là", "choices": {"A": "${(x+1)^2 + (y-3)^2 + (z+2)^2 = 14}$.", "B": "${(x-1)^2 + (y+3)^2 + (z-2)^2 = 7}$.", "C": "${(x-1)^2 + (y+3)^2 + (z-2)^2 = 14}$.", "D": "${(x+1)^2 + (y-3)^2 + (z+2)^2 = 7}$."}, "correct": "C"}, {"id": "G4_Q40", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(3;1;-1), B(-1;5;3)}$ là", "choices": {"A": "${(x+1)^2 + (y+3)^2 + (z+1)^2 = 12}$.", "B": "${(x-1)^2 + (y-3)^2 + (z-1)^2 = 6}$.", "C": "${(x-1)^2 + (y-3)^2 + (z-1)^2 = 12}$.", "D": "${(x+1)^2 + (y+3)^2 + (z+1)^2 = 6}$."}, "correct": "C"}, {"id": "G4_Q41", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(5;0;-3), B(-1;6;1)}$ là", "choices": {"A": "${(x+2)^2 + (y+3)^2 + (z-1)^2 = 22}$.", "B": "${(x-2)^2 + (y-3)^2 + (z+1)^2 = 11}$.", "C": "${(x-2)^2 + (y-3)^2 + (z+1)^2 = 22}$.", "D": "${(x+2)^2 + (y+3)^2 + (z-1)^2 = 11}$."}, "correct": "C"}, {"id": "G4_Q42", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(-2;1;7), B(4;-3;-1)}$ là", "choices": {"A": "${(x+1)^2 + (y-1)^2 + (z+3)^2 = 29}$.", "B": "${(x-1)^2 + (y+1)^2 + (z-3)^2 = 14}$.", "C": "${(x-1)^2 + (y+1)^2 + (z-3)^2 = 29}$.", "D": "${(x+1)^2 + (y-1)^2 + (z+3)^2 = 14}$."}, "correct": "C"}, {"id": "G4_Q43", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(0;8;-4), B(6;2;0)}$ là", "choices": {"A": "${(x+3)^2 + (y+5)^2 + (z-2)^2 = 22}$.", "B": "${(x-3)^2 + (y-5)^2 + (z+2)^2 = 11}$.", "C": "${(x-3)^2 + (y-5)^2 + (z+2)^2 = 22}$.", "D": "${(x+3)^2 + (y+5)^2 + (z-2)^2 = 11}$."}, "correct": "C"}, {"id": "G4_Q44", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(1;1;1), B(-3;-3;-3)}$ là", "choices": {"A": "${(x-1)^2 + (y-1)^2 + (z-1)^2 = 12}$.", "B": "${(x+1)^2 + (y+1)^2 + (z+1)^2 = 6}$.", "C": "${(x+1)^2 + (y+1)^2 + (z+1)^2 = 12}$.", "D": "${(x-1)^2 + (y-1)^2 + (z-1)^2 = 6}$."}, "correct": "C"}, {"id": "G4_Q45", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A(2;5;3), B(6;-1;7)}$ là", "choices": {"A": "${(x+4)^2 + (y+2)^2 + (z+5)^2 = 17}$.", "B": "${(x-4)^2 + (y-2)^2 + (z-5)^2 = 8}$.", "C": "${(x-4)^2 + (y-2)^2 + (z-5)^2 = 17}$.", "D": "${(x+4)^2 + (y+2)^2 + (z+5)^2 = 8}$."}, "correct": "C"}, {"id": "G4_Q46", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A\\left(6;-5;-2\\right), B\\left(-4;13;14\\right)}$ là", "choices": {"A": "${(x+1)^2+(y+4)^2+(z+6)^2=170}$.", "B": "${(x-1)^2+(y-4)^2+(z-6)^2=13}$.", "C": "${(x-1)^2+(y-4)^2+(z-6)^2=170}$.", "D": "${(x+1)^2+(y+4)^2+(z+6)^2=13}$."}, "correct": "C"}, {"id": "G4_Q47", "group": "4", "question": "Trong không gian ${Oxyz}$, phương trình mặt cầu ${(S)}$ nhận ${AB}$ làm đường kính với ${A\\left(4;1;4\\right), B\\left(6;-7;12\\right)}$ là", "choices": {"A": "${x^2+y^2+z^2+10x-6y+16z+131=0}$.", "B": "${x^2+y^2+z^2-10x+6y-16z+131=0}$.", "C": "${x^2+y^2+z^2+10x-6y+16z+65=0}$.", "D": "${x^2+y^2+z^2-10x+6y-16z+65=0}$."}, "correct": "D"}, {"id": "G4_Q48", "group": "4", "question": "Trong không gian ${Oxyz}$, mặt cầu ${(S)}$ có tâm ${I\\left(-5;-1;-6\\right)}$, và tiếp xúc với mặt phẳng ${(P):6x+y+4z-3=0}$ có bình phương bán kính là", "choices": {"A": "${\\dfrac{3365}{53}}$.", "B": "${\\dfrac{3364}{53}}$.", "C": "${\\dfrac{3362}{53}}$.", "D": "${\\dfrac{3366}{53}}$."}, "correct": "B"}, {"id": "G5_Q49", "group": "5", "question": "Trong không gian ${Oxyz}$, cho ${A\\left(5;2;6\\right),B\\left(-1;3;3\\right)}$. Mặt cầu ${(S)}$ có tâm trên ${Oz}$ và qua hai điểm ${A,B}$ có phương trình là", "choices": {"A": "${x^2+y^2+\\left(z-\\dfrac{23}{3}\\right)^2=\\dfrac{1942}{9}}$.", "B": "${x^2+y^2+\\left(z+\\dfrac{23}{3}\\right)^2=\\dfrac{937}{9}}$.", "C": "${x^2+y^2+\\left(z+\\dfrac{23}{3}\\right)^2=\\dfrac{43}{12}}$.", "D": "${x^2+y^2+\\left(z-\\dfrac{23}{3}\\right)^2=\\dfrac{286}{9}}$."}, "correct": "D"}, {"id": "G5_Q50", "group": "5", "question": "Trong không gian ${Oxyz}$, cho ${A\\left(6;8;3\\right),B\\left(-1;-1;2\\right)}$. Tìm tọa độ điểm ${I}$ thuộc ${Oy}$ sao cho ${I}$ cách đều hai điểm ${A,B}$.", "choices": {"A": "${I\\left(0;\\dfrac{103}{18};0\\right)}$.", "B": "${I\\left(0;0;\\dfrac{103}{14}\\right)}$.", "C": "${I\\left(0;-\\dfrac{103}{18};0\\right)}$.", "D": "${I\\left(-\\dfrac{103}{8};0;0\\right)}$."}, "correct": "A"}, {"id": "G5_Q51", "group": "5", "question": "Trong không gian ${Oxyz}$, cho ${A\\left(3;8;-4\\right),B\\left(-2;-1;3\\right)}$. Mặt cầu có tâm ${I}$ thuộc ${Ox}$ và qua hai điểm ${A,B}$ có tọa độ tâm ${I}$ là", "choices": {"A": "${I\\left(15;0;0\\right)}$.", "B": "${I\\left(-\\dfrac{15}{2};0;0\\right)}$.", "C": "${I\\left(\\dfrac{15}{2};0;0\\right)}$.", "D": "${I\\left(-15;0;0\\right)}$."}, "correct": "C"}, {"id": "G5_Q52", "group": "5", "question": "Trong không gian ${Oxyz}$, mặt cầu ${(S)}$ có tâm ${I\\left(-62;-52;-5\\right)}$, và tiếp xúc với mặt phẳng ${(ABC)}$ với ${A\\left(-9;7;-4\\right),B\\left(-1;-3;8\\right),C\\left(2;-5;-1\\right)}$ có bình phương bán kính là", "choices": {"A": "${6212}$.", "B": "${6217}$.", "C": "${6214}$.", "D": "${6216}$."}, "correct": "C"}, {"id": "G5_Q53", "group": "5", "question": "Trong không gian ${Oxyz}$, mặt cầu ${(S)}$ có tâm ${I\\left(-61;3;14\\right)}$, và tiếp xúc với mặt phẳng ${(\\alpha):64x+3y-17z-261=0}$ tại điểm", "choices": {"A": "${M\\left(4;-4;-1\\right)}$.", "B": "${M\\left(3;6;-3\\right)}$.", "C": "${M\\left(67;9;-20\\right)}$.", "D": "${M\\left(5;3;4\\right)}$."}, "correct": "B"}, {"id": "G5_Q54", "group": "5", "question": "Trong không gian ${Oxyz}$, mặt cầu ${(S)}$ qua 4 điểm ${A\\left(-6;1;-2\\right),B\\left(-2;-5;-2\\right),C\\left(-2;1;-8\\right),D\\left(-2;1;-2\\right)}$ có phương trình là", "choices": {"A": "${(x-6)^2+(y-5)^2+(z-2)^2=88}$.", "B": "${(x-4)^2+(y-2)^2+(z-5)^2=22}$.", "C": "${(x+6)^2+(y+5)^2+(z+2)^2=88}$.", "D": "${(x+4)^2+(y+2)^2+(z+5)^2=22}$."}, "correct": "D"}, {"id": "G5_Q55", "group": "5", "question": "Trong không gian ${Oxyz}$, mặt cầu ${(S)}$ qua 4 điểm ${A\\left(3;-1;-1\\right),B\\left(1;-7;-1\\right),C\\left(1;-1;1\\right),D\\left(1;-1;-1\\right)}$ có phương trình là", "choices": {"A": "${x^2+y^2+z^2-6x+14y+2z+15=0}$.", "B": "${x^2+y^2+z^2+6x-14y-2z+15=0}$.", "C": "${x^2+y^2+z^2-4x+8y+9=0}$.", "D": "${x^2+y^2+z^2+4x-8y+9=0}$."}, "correct": "C"}, {"id": "G5_Q56", "group": "5", "question": "Trong không gian ${Oxyz}$, mặt cầu ${(S)}$ qua ${A\\left(8;3;3\\right),B\\left(-12;-1;-9\\right)}$ và có tâm ${I(a;b;c)\\in \\Delta:\\dfrac{x-12}{11}=\\dfrac{y-13}{16}=\\dfrac{z+7}{-12}}$. Tính ${a+b+c^2}$.", "choices": {"A": "${259}$.", "B": "${262}$.", "C": "${257}$.", "D": "${260}$."}, "correct": "D"}, {"id": "G5_Q57", "group": "5", "question": "Trong không gian ${Oxyz}$, mặt cầu ${(S)}$ có tâm ${I\\left(29;-26;36\\right)}$, và tiếp xúc với mặt phẳng ${(\\alpha):29x-28y+32z-72=0}$ tại điểm ${M(a;b;c)}$. Khi đó ${c}$ bằng?", "choices": {"A": "${5}$.", "B": "${4}$.", "C": "${3}$.", "D": "${6}$."}, "correct": "B"}, {"id": "G5_Q58", "group": "5", "question": "Trong không gian ${Oxyz}$, mặt cầu ${(S)}$ qua 4 điểm ${A\\left(-1;-2;-1\\right),B\\left(1;4;-1\\right),C\\left(1;-2;3\\right),D\\left(1;-2;-1\\right)}$ có bình phương bán kính bằng", "choices": {"A": "${12}$.", "B": "${16}$.", "C": "${17}$.", "D": "${14}$."}, "correct": "D"}, {"id": "G5_Q59", "group": "5", "question": "Trong không gian ${Oxyz}$, mặt cầu ${(S)}$ qua 4 điểm ${A\\left(-5;-1;2\\right),B\\left(1;3;2\\right),C\\left(1;-1;8\\right),D\\left(1;-1;2\\right)}$ có tâm ${I(a;b;c)}$, khi đó ${b}$ bằng", "choices": {"A": "${3}$.", "B": "${1}$.", "C": "${4}$.", "D": "${-2}$."}, "correct": "B"}, {"id": "G5_Q60", "group": "5", "question": "Trong không gian ${Oxyz}$, cho ${A\\left(2;-3;2\\right),B\\left(8;5;10\\right),C\\left(6;-11;-4\\right)}$. Mặt cầu ${(S)}$ có tâm ${I}$ trên ${(Oxy)}$ và qua ba điểm ${A,B,C}$. Tính ${OI^2}$.", "choices": {"A": "${\\dfrac{5427}{20}}$.", "B": "${\\dfrac{21709}{80}}$.", "C": "${\\dfrac{1357}{5}}$.", "D": "${\\dfrac{21707}{80}}$."}, "correct": "B"}], "groups": {"1": {"pick": 4}, "2": {"pick": 3}, "3": {"pick": 5}, "4": {"pick": 5}, "5": {"pick": 3}}}</script>
+<script>
+(() => {
+"use strict";
+const TOTAL_PER_GAME = 20;
+const SECONDS_PER_Q = 60;
+const $ = (id)=>document.getElementById(id);
+
+const screenStart  = $("screenStart");
+const screenGame   = $("screenGame");
+const screenResult = $("screenResult");
+const btnStart = $("btnStart");
+const btnHow   = $("btnHow");
+const howText  = $("howText");
+const playerName  = $("playerName");
+const playerClass = $("playerClass");
+const playerWarn  = $("playerWarn");
+
+const qNum   = $("qNum");
+const qTimer = $("qTimer");
+const timeBar= $("timeBar");
+const qText  = $("qText");
+const choices= $("choices");
+const toast  = $("toast");
+
+const btnPrev = $("btnPrev");
+const btnNext = $("btnNext");
+const btnExit = $("btnExit");
+const btnStop = $("btnStop");
+const btnMute = $("btnMute");
+const navHint = $("navHint");
+
+const sProg = $("sProg");
+const sGood = $("sGood");
+const sBad  = $("sBad");
+
+const rProg  = $("rProg");
+const rGood  = $("rGood");
+const rBad   = $("rBad");
+const rScore = $("rScore");
+const resultTime = $("resultTime");
+
+const btnReplay = $("btnReplay");
+const btnExport = $("btnExport");
+const btnReview = $("btnReview");
+
+function show(screen){
+  [screenStart, screenGame, screenResult].forEach(s=>s.classList.remove("active"));
+  screen.classList.add("active");
+}
+
+function renderMathIn(root){
+  if(!window.renderMathInElement) return;
+  try {
+    window.renderMathInElement(root, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false},
+        {left: "\\(", right: "\\)", display: false},
+        {left: "\\[", right: "\\]", display: true},
+      ],
+      throwOnError: false
+    });
+  } catch(e) {}
+}
+
+const obs = new MutationObserver(()=>{
+  renderMathIn(qText);
+  renderMathIn(choices);
+});
+obs.observe(qText, {childList:true, subtree:true, characterData:true});
+obs.observe(choices, {childList:true, subtree:true, characterData:true});
+
+// Intro
+const introAudio = $("introAudio");
+let introArmed = true;
+
+function tryPlayIntro(){
+  if(!introAudio) return;
+  try {
+    introAudio.muted = false;
+    introAudio.volume = 1;
+    introAudio.currentTime = 0;
+    const p = introAudio.play();
+    if(p && p.catch) p.catch(()=>{});
+  } catch(e) {}
+}
+function stopIntro(){
+  if(!introAudio) return;
+  try { introAudio.pause(); } catch(e) {}
+  try { introAudio.currentTime = 0; } catch(e) {}
+}
+function firstGesture(){
+  if(!introArmed) return;
+  introArmed = false;
+  tryPlayIntro();
+  document.removeEventListener("pointerdown", firstGesture, true);
+  document.removeEventListener("touchstart", firstGesture, true);
+  document.removeEventListener("keydown", firstGesture, true);
+}
+document.addEventListener("pointerdown", firstGesture, true);
+document.addEventListener("touchstart", firstGesture, true);
+document.addEventListener("keydown", firstGesture, true);
+
+// Sounds
+let audioOn = true;
+let audioCtx = null;
+let audioOut = null;
+
+function getAudioOut(){
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if(!AC) return null;
+  audioCtx = audioCtx || new AC();
+  try{ if(audioCtx.state==="suspended") audioCtx.resume(); }catch(e){}
+  if(!audioOut){
+    const comp = audioCtx.createDynamicsCompressor();
+    comp.threshold.value = -22;
+    comp.knee.value = 30;
+    comp.ratio.value = 10;
+    comp.attack.value = 0.003;
+    comp.release.value = 0.25;
+
+    const master = audioCtx.createGain();
+    master.gain.value = 0.95;
+
+    comp.connect(master);
+    master.connect(audioCtx.destination);
+    audioOut = comp;
+  }
+  return audioOut;
+}
+
+function beep(freqs, durMs, waveType="sine", peak=0.28){
+  const _out = getAudioOut();
+  if(!_out) return;
+  if(!audioOn) return;
+  try{
+    const out = getAudioOut();
+    const now = audioCtx.currentTime;
+    const end = now + (durMs/1000);
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(peak, now + 0.015);
+    g.gain.setValueAtTime(peak*0.65, now + 0.12);
+    g.gain.exponentialRampToValueAtTime(0.0001, end);
+    g.connect(out);
+
+    (freqs||[]).forEach((f,i)=>{
+      const o = audioCtx.createOscillator();
+      o.type = waveType;
+      o.frequency.setValueAtTime(f, now);
+      o.detune.setValueAtTime((i%2 ? -6 : 6), now);
+      o.connect(g);
+      o.start(now + i*0.01);
+      o.stop(end + 0.05);
+    });
+  }catch(e){}
+}
+
+function kick(){
+  if(!audioOn) return;
+  try{
+    const out = getAudioOut();
+    const now = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(160, now);
+    o.frequency.exponentialRampToValueAtTime(55, now + 0.16);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(0.38, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+    o.connect(g); g.connect(out);
+    o.start(now); o.stop(now + 0.25);
+  }catch(e){}
+}
+
+function noiseBurst(dur=0.12, peak=0.22){
+  const _out = getAudioOut();
+  if(!_out) return;
+  if(!audioOn) return;
+  try{
+    const out = getAudioOut();
+    const now = audioCtx.currentTime;
+    const buffer = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate*dur), audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i] = (Math.random()*2-1) * (1 - i/data.length);
+    const src = audioCtx.createBufferSource();
+    src.buffer = buffer;
+
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(peak, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+    src.connect(g); g.connect(out);
+    src.start(now); src.stop(now + dur);
+  }catch(e){}
+}
+
+
+function soundGood(){
+  // Âm đúng: sôi nổi, mạnh mẽ (~3s)
+  kick(); noiseBurst(0.10, 0.20);
+
+  // Fanfare (C major) + lên tông
+  beep([523.25, 659.25, 783.99], 650, "sawtooth", 0.26);
+  setTimeout(()=>beep([659.25, 783.99, 987.77], 700, "sawtooth", 0.26), 220);
+  setTimeout(()=>beep([783.99, 987.77, 1174.66], 750, "triangle", 0.24), 480);
+
+  setTimeout(()=>{
+    noiseBurst(0.14, 0.18);
+    beep([1046.50, 1318.51], 850, "square", 0.22);
+  }, 820);
+
+  // Chốt bằng hợp âm sáng
+  setTimeout(()=>beep([1046.50, 1318.51, 1567.98], 1400, "sine", 0.20), 1250);
+}
+
+function soundBad(){
+  // Âm sai: rõ ràng, dứt khoát (~1.6s)
+  noiseBurst(0.08, 0.14);
+  beep([220, 196], 1100, "sawtooth", 0.26);
+  setTimeout(()=>beep([174], 700, "sine", 0.18), 450);
+}
+
+function soundCorrect(){ soundGood(); }
+function soundWrong(){ soundBad(); }
+
+
+function readBankSync(){
+  const el = $("bank-json");
+  if(!el) return null;
+  try { return JSON.parse(el.textContent); } catch(e) { return null; }
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function pickQuestions(bank){
+  const qs = Array.isArray(bank.questions) ? bank.questions : [];
+  const groups = bank.groups || {};
+
+  const picked = [];
+  const gids = Object.keys(groups).sort((a,b)=>Number(a)-Number(b));
+  for(const gid of gids){
+    const k = Number((groups[gid] && groups[gid].pick) || 0);
+    const pool = qs.filter(q => String(q.group) === String(gid));
+    picked.push(...shuffle(pool).slice(0, Math.min(k, pool.length)));
+  }
+  return shuffle(picked).slice(0, Math.min(TOTAL_PER_GAME, picked.length));
+}
+
+let game = null;
+let tick = null;
+let lastBeepSecond = null;
+let reviewMode = false;
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function stopTimer(){ if(tick) { clearInterval(tick); tick=null; } }
+
+function stats(){
+  let done=0, good=0, bad=0;
+  for(const it of game.items){
+    if(it.chosen !== null){
+      done++;
+      if(it.chosen === it.correct) good++;
+      else if(it.chosen !== "—") bad++;
+      else bad++;
+    }
+  }
+  return {done, good, bad};
+}
+
+function renderStats(){
+  const st = game ? stats() : {done:0, good:0, bad:0};
+  const total = game ? game.items.length : TOTAL_PER_GAME;
+  sProg.textContent = st.done + "/" + total;
+  sGood.textContent = String(st.good);
+  sBad.textContent  = String(st.bad);
+}
+
+function renderTimer(sec){
+  const t = Math.max(0, Math.ceil(sec));
+  const mm = Math.floor(t/60);
+  const ss = t % 60;
+  qTimer.textContent = pad2(mm) + ":" + pad2(ss);
+  const pct = (sec/SECONDS_PER_Q)*100;
+  timeBar.style.width = Math.max(0, Math.min(100, pct)) + "%";
+}
+
+function startTimer(){
+  stopTimer();
+  tick = setInterval(()=>{
+    if(!game || game.finished || reviewMode) return;
+    const it = game.items[game.index];
+    if(it.locked) return;
+
+    it.timeLeft -= 0.1;
+    const sec = Math.ceil(it.timeLeft);
+
+    if(audioOn && sec <= 5 && sec > 0 && sec !== lastBeepSecond){
+      beep([880], 140, "sine", 0.18);
+      lastBeepSecond = sec;
+    }
+
+    if(it.timeLeft <= 0){
+      it.timeLeft = 0;
+      onTimeout();
+      return;
+    }
+    renderTimer(it.timeLeft);
+  }, 100);
+}
+
+function buildGame(bank){
+  const picked = pickQuestions(bank);
+  const items = picked.map((q, idx) => {
+    const options = q.choices || q.options || {};
+    return {
+      id: q.id ?? (idx+1),
+      group: q.group,
+      q: q.question || "",
+      options: {
+        A: options.A || "",
+        B: options.B || "",
+        C: options.C || "",
+        D: options.D || ""
+      },
+      correct: (q.correct || "").toString().trim() || "A",
+      chosen: null,
+      locked: false,
+      timeLeft: SECONDS_PER_Q,
+      spent: 0
+    };
+  });
+  return {
+    startAt: Date.now(),
+    endAt: null,
+    index: 0,
+    items,
+    finished: false,
+    playerName: "",
+    playerClass: ""
+  };
+}
+
+function markChoices(it){
+  const nodes = [...choices.children];
+  const letters = ["A","B","C","D"];
+  nodes.forEach((node, idx)=>{
+    node.classList.remove("correct","wrong","disabled");
+    const L = letters[idx];
+    if(it.locked) node.classList.add("disabled");
+    if(L===it.correct) node.classList.add("correct");
+    if(it.chosen && L===it.chosen && it.chosen!==it.correct) node.classList.add("wrong");
+  });
+}
+
+function renderQuestion(){
+  const total = game.items.length;
+  if(!total || game.index >= total){ finishGame(true); return; }
+  const it = game.items[game.index];
+
+  qNum.textContent = "Câu " + (game.index+1) + "/" + total;
+  toast.textContent = "";
+  toast.className = "toast";
+
+  btnPrev.disabled = (game.index===0);
+  btnNext.disabled = !it.locked;
+  navHint.textContent = it.locked ? "Đã chốt. Bấm “Câu tiếp” để qua câu mới." : "Chọn đáp án để chốt.";
+
+  qText.innerHTML = it.q;
+  choices.innerHTML = "";
+
+  const letters = ["A","B","C","D"];
+  for(const L of letters){
+    const b = document.createElement("button");
+    b.className = "btn choice";
+    b.type = "button";
+    b.innerHTML = "<b style='margin-right:10px;color:var(--orange2)'>" + L + ".</b> <span>" + (it.options[L]||"") + "</span>";
+    if(it.locked) b.classList.add("disabled");
+    b.addEventListener("click", ()=>choose(L));
+    choices.appendChild(b);
+  }
+
+  renderTimer(it.timeLeft);
+  if(it.locked) markChoices(it);
+  renderStats();
+  renderMathIn(qText);
+  renderMathIn(choices);
+}
+
+function lockAndMaybeFinish(){
+  btnNext.disabled = false;
+  if(game.index === game.items.length - 1){
+    setTimeout(()=>finishGame(false), 600);
+  }
+}
+
+function choose(letter){
+  if(!game || game.finished || reviewMode) return;
+  const it = game.items[game.index];
+  if(it.locked) return;
+
+  it.chosen = letter;
+  it.locked = true;
+  it.spent = Math.max(0, SECONDS_PER_Q - it.timeLeft);
+
+  if(letter === it.correct){ toast.textContent = "✅ Chính xác!"; toast.className="toast good"; soundCorrect(); }
+  else { toast.textContent="❌ Chưa đúng."; toast.className="toast bad"; soundWrong(); }
+
+  markChoices(it);
+  renderStats();
+  lockAndMaybeFinish();
+
+  const idx = game.index;
+  if(idx < game.items.length - 1){
+    setTimeout(()=>{
+      if(!game || game.finished || reviewMode) return;
+      if(game.index !== idx) return;
+      next();
+    }, 900);
+  }
+}
+
+function onTimeout(){
+  const it = game.items[game.index];
+  if(it.locked || reviewMode) return;
+
+  it.chosen = "—";
+  it.locked = true;
+  it.spent = SECONDS_PER_Q;
+
+  toast.textContent = "⏱️ Hết giờ!";
+  toast.className = "toast bad";
+
+  markChoices(it);
+  renderStats();
+  lockAndMaybeFinish();
+
+  const idx = game.index;
+  if(idx < game.items.length - 1){
+    setTimeout(()=>{
+      if(!game || game.finished || reviewMode) return;
+      if(game.index !== idx) return;
+      next();
+    }, 900);
+  }
+}
+
+function next(){
+  if(!game) return;
+  if(game.index < game.items.length - 1){ game.index++; lastBeepSecond=null; renderQuestion(); }
+  else finishGame(false);
+}
+function prev(){ if(game && game.index>0){ game.index--; renderQuestion(); } }
+
+function finishGame(endedEarly){
+  if(!game || game.finished) return;
+  stopTimer();
+  game.endAt = Date.now();
+  game.finished = true;
+
+  const st = stats();
+  const total = game.items.length || TOTAL_PER_GAME;
+  const score10 = total ? Math.round((st.good / total) * 10 * 100) / 100 : 0;
+
+  rProg.textContent = st.done + "/" + total;
+  rGood.textContent = st.good;
+  rBad.textContent  = st.bad;
+  rScore.textContent= score10;
+
+  const totalSec = Math.round((game.endAt - game.startAt)/1000);
+  const mm = Math.floor(totalSec/60), ss = totalSec%60;
+  resultTime.textContent = "Thời gian: " + mm + "m " + ss + "s";
+
+  btnStop.disabled = true;
+  show(screenResult);
+  renderStats();
+}
+
+function _safeFilename(s){
+  try {
+    return (s||"").toString()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+      .replace(/[^a-zA-Z0-9]+/g,"_")
+      .replace(/^_+|_+$/g,"")
+      .slice(0,40) || "HocSinh";
+  } catch(e) { return "HocSinh"; }
+}
+function _htmlToText(s){
+  return (s||"").toString()
+    .replace(/<img[^>]*>/gi,"[CT]")
+    .replace(/<br\s*\/?>/gi,"\n")
+    .replace(/<\/p>/gi,"\n")
+    .replace(/<[^>]*>/g,"")
+    .replace(/&nbsp;/g," ")
+    .replace(/&amp;/g,"&")
+    .replace(/\n{3,}/g,"\n\n")
+    .replace(/[ \t]{2,}/g," ")
+    .trim();
+}
+function exportExcel(){
+  if(!game || !game.finished) return;
+  const st = stats();
+  const total = game.items.length || TOTAL_PER_GAME;
+  const score10 = total ? Math.round((st.good / total) * 10 * 100) / 100 : 0;
+  const totalSec = Math.round((game.endAt - game.startAt)/1000);
+
+  const now = new Date(game.endAt || Date.now());
+  const stamp = now.toISOString().slice(0,19).replace(/[:T]/g,"-");
+  const fn = "Ket_qua_" + _safeFilename(game.playerName) + "_" + _safeFilename(game.playerClass) + "_" + stamp + ".xlsx";
+
+  if(window.XLSX){
+    const summaryAOA = [
+      ["ÔN TẬP PHƯƠNG TRÌNH MẶT CẦU - TẠO BỞI MR SANG"],
+      ["Họ và tên", game.playerName || ""],
+      ["Lớp", game.playerClass || ""],
+      ["Bắt đầu", new Date(game.startAt).toLocaleString("vi-VN")],
+      ["Kết thúc", new Date(game.endAt).toLocaleString("vi-VN")],
+      ["Thời gian làm (giây)", totalSec],
+      ["Số câu", total],
+      ["Đúng", st.good],
+      ["Sai", st.bad],
+      ["Điểm (10)", score10],
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryAOA);
+
+    const header = ["STT","ID","Nhóm","Câu hỏi","A","B","C","D","Đáp án đúng","Đã chọn","Kết quả","Thời gian (giây)"];
+    const rows = [header];
+    for(let i=0;i<game.items.length;i++) {
+      const it = game.items[i];
+      const chosen = (it.chosen===null) ? "" : it.chosen;
+      const result = it.correct ? ((chosen===it.correct) ? "Đúng" : "Sai") : "—";
+      const spent = (typeof it.spent === "number") ? Math.round(it.spent) : "";
+      rows.push([
+        i+1, it.id, it.group,
+        _htmlToText(it.q),
+        _htmlToText(it.options.A),
+        _htmlToText(it.options.B),
+        _htmlToText(it.options.C),
+        _htmlToText(it.options.D),
+        it.correct || "",
+        chosen,
+        result,
+        spent
+      ]);
+    }
+    const ws2 = XLSX.utils.aoa_to_sheet(rows);
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws1, "Tong_quan");
+    XLSX.utils.book_append_sheet(wb, ws2, "Chi_tiet");
+    XLSX.writeFile(wb, fn);
+  } else {
+    alert("Thiếu thư viện XLSX (cần Internet để tải).");
+  }
+}
+
+btnHow.addEventListener("click", ()=>{
+  howText.style.display = (howText.style.display==="none") ? "" : "none";
+  howText.textContent = "Chọn 1 đáp án (A–D). Mỗi câu 60 giây. 5 giây cuối có báo động.";
+});
+
+btnStart.addEventListener("click", ()=>{
+  const name = (playerName && playerName.value || "").trim();
+  const cls  = (playerClass && playerClass.value || "").trim();
+  if(!name || !cls){
+    playerWarn.style.display = "";
+    ( !name ? playerName : playerClass ) && ( !name ? playerName : playerClass ).focus && ( !name ? playerName : playerClass ).focus();
+    return;
+  }
+  playerWarn.style.display = "none";
+  try { getAudioOut(); } catch(e) {}
+  stopIntro();
+
+  const bank = readBankSync();
+  if(!bank){ alert("Không đọc được kho câu hỏi."); return; }
+  game = buildGame(bank);
+  game.playerName = name;
+  game.playerClass = cls;
+
+  lastBeepSecond = null;
+  reviewMode = false;
+  show(screenGame);
+  btnStop.disabled = false;
+  renderQuestion();
+  startTimer();
+});
+
+btnPrev.addEventListener("click", prev);
+btnNext.addEventListener("click", next);
+btnStop.addEventListener("click", ()=>{ if(game) finishGame(true); });
+
+btnMute.addEventListener("click", ()=>{ audioOn = !audioOn; btnMute.textContent = audioOn ? "Tắt âm" : "Bật âm"; });
+
+btnExit.addEventListener("click", ()=>{
+  const ok = confirm("Bạn muốn thoát? Tiến trình hiện tại sẽ không được tính.");
+  if(!ok) return;
+  stopTimer();
+  stopIntro();
+  game = null;
+  reviewMode = false;
+  show(screenStart);
+  btnStop.disabled = true;
+});
+
+btnReplay.addEventListener("click", ()=>{
+  const name = (playerName && playerName.value || (game && game.playerName) || "").trim();
+  const cls  = (playerClass && playerClass.value || (game && game.playerClass) || "").trim();
+  if(!name || !cls){ show(screenStart); return; }
+  stopIntro();
+
+  const bank = readBankSync();
+  if(!bank){ alert("Không đọc được kho câu hỏi."); return; }
+  game = buildGame(bank);
+  game.playerName = name;
+  game.playerClass = cls;
+
+  lastBeepSecond = null;
+  reviewMode = false;
+  show(screenGame);
+  btnStop.disabled = false;
+  renderQuestion();
+  startTimer();
+});
+
+btnExport.addEventListener("click", exportExcel);
+
+btnReview.addEventListener("click", ()=>{
+  if(!game) return;
+  reviewMode = true;
+  stopTimer();
+  game.index = 0;
+  show(screenGame);
+  renderQuestion();
+  toast.textContent = "🔎 Xem lại (không chạy đồng hồ).";
+  toast.className = "toast muted";
+});
+
+window.addEventListener("load", ()=>{ renderMathIn(document.body); });
+})();
+</script>
+</body>
+</html>
