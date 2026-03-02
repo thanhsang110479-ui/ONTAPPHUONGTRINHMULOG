@@ -456,17 +456,24 @@ function shuffle(arr){
 }
 
 function pickQuestions(bank){
-  const qs = Array.isArray(bank.questions) ? bank.questions : [];
-  const groups = bank.groups || {};
 
+  const qs = Array.isArray(bank) ? bank : [];
   const picked = [];
-  const gids = Object.keys(groups).sort((a,b)=>Number(a)-Number(b));
-  for(const gid of gids){
-    const k = Number((groups[gid] && groups[gid].pick) || 0);
+
+  const quota = {
+    1: 7,
+    2: 3,
+    3: 7,
+    4: 3
+  };
+
+  Object.keys(quota).forEach(gid => {
     const pool = qs.filter(q => String(q.group) === String(gid));
+    const k = quota[gid];
     picked.push(...shuffle(pool).slice(0, Math.min(k, pool.length)));
-  }
-  return shuffle(picked).slice(0, Math.min(TOTAL_PER_GAME, picked.length));
+  });
+
+  return shuffle(picked);
 }
 
 let game = null;
