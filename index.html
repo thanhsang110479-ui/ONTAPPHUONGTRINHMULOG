@@ -537,16 +537,16 @@ function startTimer(){
 function buildGame(bank){
   const picked = pickQuestions(bank);
   const items = picked.map((q, idx) => {
-    const options = q.choices || q.options || {};
+    
     return {
       id: q.id ?? (idx+1),
       group: q.group,
-      q: q.question || "",
+     q: q.q || "",
       options: {
-        A: options.A || "",
-        B: options.B || "",
-        C: options.C || "",
-        D: options.D || ""
+       546    A: q.A || "",
+547    B: q.B || "",
+548    C: q.C || "",
+549    D: q.D || ""
       },
       correct: (q.correct || "").toString().trim() || "A",
       chosen: null,
